@@ -38,7 +38,7 @@ const PostWidget = ({
 
     const patchInterest = async () => {
         console.log(loggedInUser);
-        const response = await fetch(`https://protege-mentorship-app-backend.onrender.com/posts/${postId}/interest`, {
+        const response = await fetch(`http://localhost:5000/posts/${postId}/interest`, {
             method: "PATCH",
             headers: { 
                 Authorization: `Bearer ${token}`,
@@ -53,7 +53,7 @@ const PostWidget = ({
 
     const patchComment = async () => {
         
-        const response = await fetch(`https://protege-mentorship-app-backend.onrender.com/posts/${postId}/comment`, {
+        const response = await fetch(`http://localhost:5000/posts/${postId}/comment`, {
             method: "PATCH",
             headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json'},
             body: JSON.stringify({ user: loggedInUser, comment: comment }),
@@ -96,7 +96,7 @@ const PostWidget = ({
                         height="auto"
                         alt="post"
                         style={{ borderRadius: "0.75rem", marginTop: "0.75rem" }}
-                        src={`https://protege-mentorship-app-backend.onrender.com/assets/${picturePath}`}
+                        src={`http://localhost:5000/assets/${picturePath}`}
                     />
                 )}
                 <FlexBetween width="100%" mt="0.5rem" fontSize="0.75rem">

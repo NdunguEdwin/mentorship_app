@@ -24,7 +24,7 @@ const Friend = ({ connectionId, name, subtitle, userPicturePath }) => {
 
     const patchFriend = async () => {
         if(connectionId!==undefined){
-            const response = await fetch(`https://protege-mentorship-app-backend.onrender.com/users/${_id}/${connectionId}`,
+            const response = await fetch(`http://localhost:5000/users/${_id}/${connectionId}`,
             {
                 method: "PATCH",
                 headers: {

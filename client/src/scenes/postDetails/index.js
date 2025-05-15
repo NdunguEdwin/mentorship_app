@@ -21,7 +21,7 @@ const PostDetails = () => {
 
     const getPost = async () => {
         try {
-            const response = await fetch(`https://protege-mentorship-app-backend.onrender.com/posts/${postId}`, {
+            const response = await fetch(`http://localhost:5000/posts/${postId}`, {
                 method: "GET",
                 headers: { Authorization: `Bearer ${token}` },
               });

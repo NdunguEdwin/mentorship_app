@@ -13,7 +13,7 @@ const FriendListWidget = ({ userId }) => {
 
     const getFriends = async () => {
         const response = await fetch(
-            `https://protege-mentorship-app-backend.onrender.com/users/${userId}/connections`,
+            `http://localhost:5000/users/${userId}/connections`,
             {
                 method: "GET",
                 headers: { Authorization: `Bearer ${token}` },

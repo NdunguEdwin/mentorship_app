@@ -46,7 +46,7 @@ const CreatePost = ({ picturePath }) => {
         }
         console.log(formData);
 
-        const response = await fetch(`https://protege-mentorship-app-backend.onrender.com/posts`, {
+        const response = await fetch(`http://localhost:5000/posts`, {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
             body: formData,

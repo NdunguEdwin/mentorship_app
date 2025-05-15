@@ -11,7 +11,7 @@ const FeedWidget = ({ userId, isProfile = false }) => {
 
     //api call for fetching all posts
     const getPosts = async () => {
-        const response = await fetch(`https://protege-mentorship-app-backend.onrender.com/posts`, {
+        const response = await fetch(`http://localhost:5000/posts`, {
             method: "GET",
             headers: { Authorization: `Bearer ${token}` },
         });
@@ -21,7 +21,7 @@ const FeedWidget = ({ userId, isProfile = false }) => {
     };
 
     const getUserPosts = async () => {
-        const response = await fetch(`https://protege-mentorship-app-backend.onrender.com/posts/${userId}/posts`, {
+        const response = await fetch(`http://localhost:5000/posts/${userId}/posts`, {
             method: "GET",
             headers: { Authorization: `Bearer ${token}` },
         });

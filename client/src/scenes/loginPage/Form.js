@@ -78,7 +78,7 @@ const Form = () => {
         console.log(onSubmitProps)
 
         const savedUserResponse = await fetch(
-            `https://protege-mentorship-app-backend.onrender.com/auth/register`,
+            `http://localhost:5000/auth/register`,
             {
                 method: "POST",
                 body: formData,
@@ -95,7 +95,7 @@ const Form = () => {
     const login = async (values) => {
         console.log(values)
         const loggedInResponse = await fetch(
-            `https://protege-mentorship-app-backend.onrender.com/auth/login`,
+            `http://localhost:5000/auth/login`,
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json"},
@@ -161,7 +161,7 @@ const Form = () => {
                                     onChange={handleChange}
                                     value={values.firstName || ''}
                                     name="firstName"
-                                    error={Boolean(touched.firstName) && Boolean(errors.lastName)}
+                                    error={Boolean(touched.firstName) && Boolean(errors.firstName)}
                                     helperText={touched.firstName && errors.firstName}
                                     sx={{ gridColumn: "span 4"}}
                                 />
