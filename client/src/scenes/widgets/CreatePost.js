@@ -89,6 +89,7 @@ const CreatePost = ({ picturePath }) => {
                         <MenuItem value="Web Development">Web Development</MenuItem>
                         <MenuItem value="Machine Learning">Machine Learning</MenuItem>
                         <MenuItem value="Android / iOS Development">Android / iOS Development</MenuItem>
+                        <MenuItem value="Database">Database Administration</MenuItem>
                     </TextField>
                 </FlexBetween>
 

@@ -14,6 +14,8 @@ import postRoutes from "./routes/posts.js";
 import { register } from "./controllers/auth.js";
 import { createPost } from "./controllers/posts.js";
 import { verifyToken } from "./middleware/auth.js";
+import analyticsRoutes from "./routes/analytics.js";
+import domainRoutes from "./routes/domains.js";
 
 // Setup __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -32,6 +34,8 @@ app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" }));
 app.use(morgan("common"));
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
+app.use("/analytics", analyticsRoutes);
+app.use("/domains", domainRoutes);
 
 // ✅ Updated CORS setup for frontend-backend communication
 app.use(cors({

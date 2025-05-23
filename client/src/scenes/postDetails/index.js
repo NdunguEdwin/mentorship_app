@@ -1,172 +1,255 @@
-import { Box, Divider, Typography, useMediaQuery, useTheme } from "@mui/material";
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setPost } from "state";
+import {
+  ChatBubbleOutlineOutlined,
+//   FavoriteBorderOutlined,
+//   FavoriteOutlined,
+//   ShareOutlined,
+} from "@mui/icons-material";
+import {
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  TextField,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import FlexBetween from "components/FlexBetween";
 import Friend from "components/Friend";
+import WidgetWrapper from "components/WidgetWrapper";
 import UserImage from "components/UserImage";
-import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import NavBar from "scenes/navbar";
-import PostWidget from "scenes/widgets/PostWidget";
+import { useNavigate } from "react-router-dom";
 
-const PostDetails = () => {
-    const [post, setPost] = useState();
-    const [buttonDisable, setButtonDisable] = useState(false)
-    const userId = useSelector((state) => state.user._id);
-    const token = useSelector((state) => state.token);
-    const { postId } = useParams();
-    const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
-    const { palette } = useTheme();
-    const main = palette.neutral.main;
-    const primary = palette.primary.main;
+const PostWidget = ({
+  postId,
+  postUserId,
+  name,
+  description,
+  userType,
+  location,
+  legalDomain,
+  picturePath,
+  userPicturePath,
+  interests,
+  comments,
+  buttonDisable,
+}) => {
+  const [isComments, setIsComments] = useState(false);
+  const [comment, setComment] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const token = useSelector((state) => state.token);
+  const loggedInUser = useSelector((state) => state.user);
+  const userId = loggedInUser?.userId;
+  const isInterested = Boolean(
+    interests.find((user) => userId === user.userId)
+  );
+  const interestCount = Object.keys(interests).length;
+  const { palette } = useTheme();
+  const main = palette.neutral.main;
+  const primary = palette.primary.main;
 
-    const getPost = async () => {
-        try {
-            const response = await fetch(`http://localhost:5000/posts/${postId}`, {
-                method: "GET",
-                headers: { Authorization: `Bearer ${token}` },
-              });
-              const data = await response.json();
-              setPost(data);   
-              setButtonDisable(true)     
-        } catch (error) {
-            console.log(error.message)
-        }
+  const patchInterest = async () => {
+    const response = await fetch(
+      `http://localhost:5000/posts/${postId}/interest`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user: loggedInUser }),
+      }
+    );
+    const updatedPost = await response.json();
+    dispatch(setPost({ post: updatedPost }));
+  };
 
+  const patchComment = async () => {
+    const response = await fetch(
+      `http://localhost:5000/posts/${postId}/comment`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user: loggedInUser, comment }),
+      }
+    );
+    const updatedPost = await response.json();
+    dispatch(setPost({ post: updatedPost }));
+    setComment("");
+  };
 
-      };
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/posts/${postId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    
-    useEffect(() => {
-        console.log(post);
+      if (response.ok) {
+        window.location.reload(); // Or navigate to another page
+      } else {
+        console.error("Failed to delete the post");
+      }
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    }
+  };
 
-        getPost();
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-    if (!post) return <h1>Loading...</h1>;
-
-    
   return (
-    <Box>
-        <NavBar connection={userId}/>
-        <Box
+    <WidgetWrapper m="2rem 0" gap="1rem">
+      <Friend
+        connectionId={postUserId}
+        name={name}
+        subtitle={userType}
+        userPicturePath={userPicturePath}
+      />
+
+      <FlexBetween
+        sx={{
+          flexDirection: "column",
+          alignItems: "flex-start",
+          width: "100%",
+          cursor: "pointer",
+        }}
+        onClick={() => {
+          navigate(`/posts/${postId}`);
+          navigate(0);
+        }}
+      >
+        <Typography color={main} sx={{ mt: "1rem", fontSize: "1rem" }}>
+          {description}
+        </Typography>
+
+        {picturePath && (
+          <img
             width="100%"
-            padding="2rem 6%"
-            display={isNonMobileScreens ? "flex" : "block"}
-            gap="2rem"
-            justifyContent="center"
-        >
+            height="auto"
+            alt="post"
+            style={{ borderRadius: "0.75rem", marginTop: "0.75rem" }}
+            src={`http://localhost:5000/assets/${picturePath}`}
+          />
+        )}
 
-            <Box flexBasis={isNonMobileScreens ? "30%" : undefined}>
-                <FlexBetween sx={{flexDirection: "column", p:"1rem", width: "100%"}}>
-                    <Typography variant="h2" sx={{color: primary, fontWeight: "500"}}>
-                        Comments
-                    </Typography>
-                    {post.comments.length > 0 ? 
-                        (post.comments.map((comment, i) => (
-                            <Box key={`${comment.name}-${i}`} width="100%">
-                                <Divider />
-                                <FlexBetween 
-                                    sx={{ 
-                                        flexDirection: "column", 
-                                        alignItems: "flex-start", 
-                                        m: "0.5rem" 
-                                    }}>
-                                    <FlexBetween>
-                                        <UserImage image={comment.user.picturePath} size="55px" />
-                                        <Typography 
-                                            sx={{ 
-                                                width: "100%", 
-                                                fontSize: "1.25rem", 
-                                                color: primary, 
-                                                m:"0.5rem", 
-                                                p:"0.5rem" 
-                                            }}>
-                                            {comment.user.firstName} {comment.user.lastName}
-                                        </Typography>
-                                    </FlexBetween>
+        <FlexBetween width="100%" mt="0.5rem" fontSize="0.75rem">
+          <Typography
+            color={primary}
+            sx={{ fontSize: "0.75rem", fontWeight: "500" }}
+          >
+            Location: {location}
+          </Typography>
+          <Typography
+            color={primary}
+            sx={{ fontSize: "0.75rem", fontWeight: "500" }}
+          >
+            Domain: {legalDomain}
+          </Typography>
+        </FlexBetween>
+      </FlexBetween>
 
-                                    <Typography 
-                                        sx={{ 
-                                            width: "100%", 
-                                            fontSize: "1rem", 
-                                            color: main, 
-                                            mt:"0.5rem" 
-                                        }}>
-                                        {comment.comment}
-                                    </Typography>
-                                </FlexBetween>
-                                <Divider />
-                            </Box>         
-                            ))
-                        ):(
-                            <Box width="100%">
-                                <Divider />
-                                <Typography textAlign="center">No Comments</Typography>
-                            </Box>
-                        )
-                    }
-                </FlexBetween>
-            </Box>
-            <Box flexBasis={isNonMobileScreens ? "40%" : undefined}>
-                <PostWidget 
-                    key={post._id}
-                    postId={post._id}
-                    postUserId={post.userId}
-                    name={`${post.firstName} ${post.lastName}`}
-                    userType={post.userType}
-                    description={post.description}
-                    legalDomain={post.legalDomain}
-                    location={post.location}
-                    picturePath={post.picturePath}
-                    userPicturePath={post.userPicturePath}
-                    interests={post.interests}
-                    comments={post.comments}
-                    buttonDisable={buttonDisable}
-                />
-            </Box>
-            <Box flexBasis={isNonMobileScreens ? "30%" : undefined}>
-                <FlexBetween sx={{flexDirection: "column"}}>
-
-                    {post.interests.length > 0 ? (
-                        post.interests.map((interest, i) => (
-                            <Box key={`${interest.user.firstName}-${i}`} width="100%" p="1rem">
-                                <Typography 
-                                    variant="h2" 
-                                    sx={{
-                                        textAlign: "center", 
-                                        color: primary, 
-                                        fontWeight: "500"
-                                    }}
-                                >
-                                    Interests
-                                </Typography>
-                                <Divider sx={{ mb: "0.5rem"}}/>
-                                <Friend 
-                                    connectionId={interest.user.userId}
-                                    name={`${interest.user.firstName} ${interest.user.lastName}`}
-                                    subtitle={interest.user.userType}
-                                    userPicturePath={interest.user.picturePath}
-                                />
-                                <Typography sx={{ mt:"0.5rem", color: primary, fontWeight: "500" }}>
-                                    Location: {interest.user.location}
-                                </Typography>
-                                <Divider sx={{ mt:"1rem"}}/>
-                            </Box>
-                        ))
-                    ) : (
-                        <Box width="100%">
-                            <Divider />
-                            <Typography textAlign="center">No Comments</Typography>
-                        </Box> 
-                        )
-                }
-                </FlexBetween>
-            </Box>
+      {/* Edit/Delete buttons */}
+      {userId === postUserId && (
+        <Box display="flex" gap="1rem" mt="1rem">
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => console.log("Edit feature coming soon")}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="outlined"
+            size="small"
+            color="error"
+            onClick={handleDelete}
+          >
+            Delete
+          </Button>
         </Box>
-    </Box>
+      )}
 
+      <FlexBetween mt="0.25rem">
+        <FlexBetween gap="1rem" width="100%">
+          <FlexBetween gap="0.5rem">
+            <Button
+              size="small"
+              disabled={isInterested}
+              onClick={patchInterest}
+              sx={{
+                backgroundColor: palette.primary.main,
+                color: palette.background.alt,
+                "&:hover": { backgroundColor: palette.primary.dark },
+              }}
+            >
+              Interested
+            </Button>
+            <Typography>{interestCount}</Typography>
+          </FlexBetween>
 
-  )
-}
+          <FlexBetween gap="0.3rem">
+            <IconButton
+              disabled={buttonDisable}
+              onClick={() => setIsComments(!isComments)}
+            >
+              <ChatBubbleOutlineOutlined />
+            </IconButton>
+            <Typography>{comments.length}</Typography>
+          </FlexBetween>
+        </FlexBetween>
+      </FlexBetween>
 
-export default PostDetails;
+      {isComments && (
+        <Box mt="0.5rem">
+          <TextField
+            placeholder="write a comment"
+            onChange={(e) => setComment(e.target.value)}
+            value={comment}
+            sx={{
+              width: "100%",
+              backgroundColor: palette.neutral.light,
+            }}
+            multiline={true}
+          />
+          <Button size="small" onClick={patchComment}>
+            Post Comment
+          </Button>
+
+          {comments.length > 0 &&
+            comments.map((comment, i) => (
+              <Box key={`${name}-${i}`}>
+                <Divider />
+                <FlexBetween
+                  sx={{
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    m: "0.5rem 1rem",
+                  }}
+                >
+                  <FlexBetween>
+                    <UserImage image={comment.user.picturePath} size="25px" />
+                    <Typography sx={{ color: primary, m: "0.25rem" }}>
+                      {comment.user.firstName}
+                    </Typography>
+                  </FlexBetween>
+
+                  <Typography sx={{ color: main, mt: "0.25rem" }}>
+                    {comment.comment}
+                  </Typography>
+                </FlexBetween>
+              </Box>
+            ))}
+          <Divider />
+        </Box>
+      )}
+    </WidgetWrapper>
+  );
+};
+
+export default PostWidget;
